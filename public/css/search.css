@@ -1,0 +1,473 @@
+/* Enhanced Spotify-like Search Page CSS */
+
+/* Color Variables */
+:root {
+    --primary-bg: #121212;
+    --secondary-bg: #1e1e1e;
+    --card-bg: #181818;
+    --card-hover: #282828;
+    --primary-text: #ffffff;
+    --secondary-text: #b3b3b3;
+    --accent-green: #1ed760;
+    --accent-hover: #1fdf64;
+    --border-color: #404040;
+    --search-bg: #242424;
+    --overlay-bg: rgba(0, 0, 0, 0.7);
+}
+
+/* Main Layout */
+body {
+    background: var(--primary-bg);
+    color: var(--primary-text);
+    font-family: 'Circular', 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.main-content {
+    background: var(--primary-bg);
+    min-height: 100vh;
+}
+
+/* Search Section */
+.search-section {
+    padding: 2rem 0;
+    background: linear-gradient(180deg, var(--secondary-bg) 0%, var(--primary-bg) 100%);
+}
+
+/* Search Container */
+.search-container {
+    max-width: 500px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--search-bg);
+    border-radius: 24px;
+    padding: 12px 16px;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.search-input-wrapper:focus-within {
+    border-color: var(--accent-green);
+    background: var(--card-bg);
+}
+
+.search-icon {
+    color: var(--secondary-text);
+    font-size: 18px;
+    margin-right: 12px;
+}
+
+.search-input {
+    background: transparent;
+    border: none;
+    color: var(--primary-text);
+    font-size: 16px;
+    width: 100%;
+    outline: none;
+}
+
+.search-input::placeholder {
+    color: var(--secondary-text);
+}
+
+.clear-search {
+    background: transparent;
+    border: none;
+    color: var(--secondary-text);
+    font-size: 18px;
+    padding: 0;
+    margin-left: 8px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.clear-search:hover {
+    color: var(--primary-text);
+}
+
+/* Toggle Buttons */
+.toggle-buttons {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 2rem;
+}
+
+.toggle-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--secondary-text);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.toggle-btn:hover {
+    border-color: var(--primary-text);
+    color: var(--primary-text);
+}
+
+.toggle-btn.active {
+    background: var(--accent-green);
+    border-color: var(--accent-green);
+    color: var(--primary-bg);
+}
+
+/* Section Header */
+.section-header {
+    margin-bottom: 1.5rem;
+}
+
+.section-title {
+    color: var(--primary-text);
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Song Cards */
+.songs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 24px;
+    padding: 0;
+}
+
+.song-card {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 16px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.song-card:hover {
+    background: var(--card-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.song-cover {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.play-overlay {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    width: 48px;
+    height: 48px;
+    background: var(--accent-green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-bg);
+    font-size: 16px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1;
+}
+
+.song-card:hover .play-overlay {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.play-overlay:hover {
+    transform: scale(1.05);
+}
+
+.song-info h3,
+.card-title {
+    color: var(--primary-text);
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.song-artist,
+.card-text {
+    color: var(--secondary-text);
+    font-size: 14px;
+    margin: 0 0 12px 0;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.song-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    opacity: 1; /* always visible */
+    transition: opacity 0.3s ease;
+    z-index: 2;
+}
+
+.like-btn {
+    background: transparent;
+    border: none;
+    color: var(--secondary-text);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+}
+
+.like-btn:hover {
+    color: var(--accent-green);
+}
+
+.like-btn.liked {
+    color: var(--accent-green);
+}
+
+.add-to-playlist-btn {
+    background: transparent;
+    border: none;
+    color: var(--secondary-text);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    transition: all 0.3s ease;
+    z-index: 2; /* above overlay */
+}
+
+.add-to-playlist-btn:hover {
+    background: var(--border-color);
+    color: var(--primary-text);
+}
+
+/* Playlist Cards */
+.playlist-card {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 16px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+    position: relative;
+}
+
+.playlist-card:hover {
+    background: var(--card-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.playlist-cover {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 16px;
+}
+
+.playlist-info h3 {
+    color: var(--primary-text);
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+    line-height: 1.3;
+}
+
+.playlist-description {
+    color: var(--secondary-text);
+    font-size: 14px;
+    margin: 0;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Dropdown Menu Fix */
+.dropdown-menu {
+    z-index: 1000 !important;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+}
+
+/* Loading and No Results States */
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 0;
+    color: var(--secondary-text);
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border-color);
+    border-top: 3px solid var(--accent-green);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.no-results {
+    text-align: center;
+    padding: 4rem 0;
+    color: var(--secondary-text);
+}
+
+.no-results i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.no-results h4 {
+    font-size: 24px;
+    margin-bottom: 0.5rem;
+    color: var(--primary-text);
+}
+
+/* Modal Styling */
+.modal-content.custom-modal {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--border-color);
+    color: var(--primary-text);
+}
+
+.modal-title {
+    color: var(--primary-text);
+    font-weight: 700;
+}
+
+.playlist-item {
+    padding: 12px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.playlist-item:hover {
+    background: var(--card-hover);
+}
+
+.playlist-item img {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.playlist-item-info h6 {
+    margin: 0;
+    color: var(--primary-text);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.playlist-item-info p {
+    margin: 0;
+    color: var(--secondary-text);
+    font-size: 12px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .songs-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 16px;
+    }
+
+    .song-card {
+        padding: 12px;
+    }
+
+    .song-info h3 {
+        font-size: 14px;
+    }
+
+    .song-artist {
+        font-size: 12px;
+    }
+
+    .search-container {
+        max-width: 100%;
+        margin: 0 16px;
+    }
+}
+
+/* Playlist dropdown menu */
+.playlist-dropdown {
+    background-color: #121212 !important; /* dark background */
+    border: 1px solid #333;
+    min-width: 200px;
+    padding: 0.25rem 0;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+/* Dropdown items */
+.playlist-dropdown .dropdown-item {
+    color: #ffffff;               /* white text */
+    background-color: transparent; /* inherit dark background */
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease;
+}
+
+/* Hover effect */
+.playlist-dropdown .dropdown-item:hover {
+    color: #ffffff;              /* text stays white */
+    background-color: #333333;   /* dark grey on hover */
+}
+
+/* Optional: add cursor pointer */
+.playlist-dropdown .dropdown-item {
+    cursor: pointer;
+}

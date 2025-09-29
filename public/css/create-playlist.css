@@ -1,0 +1,45 @@
+.create-playlist-section {
+  /* background: linear-gradient(135deg, #1db954, #121212); */
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
+.form-card {
+  background: #1e1e1e;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}   
+.form-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+}
+
+.text-gradient {
+  background: linear-gradient(90deg, #1db954, #00ffcc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.custom-input, .custom-select {
+  background-color: #2a2a2a !important;
+  color: #fff !important;
+}
+.custom-input::placeholder, .custom-select {
+  color: #aaa !important;
+}
+.custom-input:focus, .custom-select:focus {
+  background-color: #333 !important;
+  border: 2px solid #1db954 !important;
+  box-shadow: none !important;
+}
+
+.btn-success {
+  background: linear-gradient(90deg, #1db954, #00ffcc);
+  border: none;
+  transition: all 0.3s ease;
+}
+.btn-success:hover {
+  background: linear-gradient(90deg, #00ffcc, #1db954);
+  transform: scale(1.05);
+}

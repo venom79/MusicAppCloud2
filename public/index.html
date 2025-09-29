@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kaatar - Your Music Experience</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./css/home.css" />
+    <script type="module" src="./js/header.js"></script>
+
+  </head>
+  <body>
+    
+    <div id="header-placeholder"></div>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="container-fluid px-4">
+        <div class="row align-items-center">
+          <div class="col-lg-6">
+            <div class="hero-content">
+              <h1 class="hero-title">Discover Your Sound</h1>
+              <p class="hero-subtitle">
+                Millions of songs, podcasts, and playlists. Find your perfect
+                soundtrack.
+              </p>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="hero-banner">
+              <img
+                src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&h=400&fit=crop"
+                alt="Music Hero"
+                class="img-fluid hero-image"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Playlists Section -->
+    <section class="playlists-section">
+      <div class="container-fluid px-4">
+        <div class="section-header">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="section-title">Recent Playlists</h2>
+          </div>
+        </div>
+
+        <div class="row" id="playlistsContainer">
+          <!-- Playlists will be loaded dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="categories-section">
+      <div class="container-fluid px-4">
+        <div class="section-header">
+          <h2 class="section-title mb-4">Browse by Category</h2>
+        </div>
+
+        <div class="row">
+
+          <!-- Pop -->
+          <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
+            <a href="genre.html?genre=Pop" class="text-decoration-none">
+              <div class="category-card"
+                style="background: linear-gradient(135deg, #1db954 0%, #1ed760 100%);">
+                <div class="category-content text-white">
+                  <h4 class="category-title">Pop</h4>
+                  <i class="bi bi-music-note category-icon"></i>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <!-- Rock -->
+          <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
+            <a href="genre.html?genre=Rock" class="text-decoration-none">
+              <div class="category-card"
+                style="background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);">
+                <div class="category-content text-white">
+                  <h4 class="category-title">Rock</h4>
+                  <i class="bi bi-lightning category-icon"></i>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <!-- Jazz -->
+          <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
+            <a href="genre.html?genre=Jazz" class="text-decoration-none">
+              <div class="category-card"
+                style="background: linear-gradient(135deg, #4ecdc4 0%, #6ee6dd 100%);">
+                <div class="category-content text-white">
+                  <h4 class="category-title">Jazz</h4>
+                  <i class="bi bi-vinyl category-icon"></i>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <!-- Classical -->
+          <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
+            <a href="genre.html?genre=Classical" class="text-decoration-none">
+              <div class="category-card"
+                style="background: linear-gradient(135deg, #a8e6cf 0%, #c1f0d7 100%);">
+                <div class="category-content text-dark">
+                  <h4 class="category-title">Classical</h4>
+                  <i class="bi bi-music-note-list category-icon"></i>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <!-- Hip Hop -->
+          <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
+            <a href="genre.html?genre=Hip Hop" class="text-decoration-none">
+              <div class="category-card"
+                style="background: linear-gradient(135deg, #ffd93d 0%, #ffed4e 100%);">
+                <div class="category-content text-dark">
+                  <h4 class="category-title">Hip Hop</h4>
+                  <i class="bi bi-disc category-icon"></i>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <!-- Electronic -->
+          <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
+            <a href="genre.html?genre=Electronic" class="text-decoration-none">
+              <div class="category-card"
+                style="background: linear-gradient(135deg, #a8a8ff 0%, #c1c1ff 100%);">
+                <div class="category-content text-dark">
+                  <h4 class="category-title">Electronic</h4>
+                  <i class="bi bi-soundwave category-icon"></i>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <!-- R&B -->
+          <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
+            <a href="genre.html?genre=R&B" class="text-decoration-none">
+              <div class="category-card"
+                style="background: linear-gradient(135deg, #ff9ff3 0%, #ffb3f7 100%);">
+                <div class="category-content text-dark">
+                  <h4 class="category-title">R&B</h4>
+                  <i class="bi bi-heart category-icon"></i>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <!-- Country -->
+          <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
+            <a href="genre.html?genre=Country" class="text-decoration-none">
+              <div class="category-card"
+                style="background: linear-gradient(135deg, #ffa8a8 0%, #ffc1c1 100%);">
+                <div class="category-content text-dark">
+                  <h4 class="category-title">Country</h4>
+                  <i class="bi bi-tree category-icon"></i>
+                </div>
+              </div>
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+
+    <!-- Footer -->
+    <footer class="footer-section">
+      <div class="container-fluid px-4">
+        <div class="row">
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="footer-brand">
+              <h5 class="text-success mb-3">
+                <i class="bi bi-music-note-beamed me-2"></i>Kaatar
+              </h5>
+              <p class="footer-text">
+                Your ultimate music streaming experience. Discover, create, and
+                share your favorite music.
+              </p>
+            </div>
+          </div>
+
+          <div class="col-lg-2 col-md-6 mb-4">
+            <h6 class="footer-title">Company</h6>
+            <ul class="footer-links">
+              <li><a href="#">About</a></li>
+              <li><a href="#">Jobs</a></li>
+              <li><a href="#">For the Record</a></li>
+            </ul>
+          </div>
+
+          <div class="col-lg-2 col-md-6 mb-4">
+            <h6 class="footer-title">Communities</h6>
+            <ul class="footer-links">
+              <li><a href="#">For Artists</a></li>
+              <li><a href="#">Developers</a></li>
+              <li><a href="#">Advertising</a></li>
+            </ul>
+          </div>
+
+          <div class="col-lg-2 col-md-6 mb-4">
+            <h6 class="footer-title">Useful links</h6>
+            <ul class="footer-links">
+              <li><a href="#">Support</a></li>
+              <li><a href="#">Web Player</a></li>
+              <li><a href="#">Free Mobile App</a></li>
+            </ul>
+          </div>
+
+          <div class="col-lg-3 col-md-12 mb-4">
+            <h6 class="footer-title">Follow Us</h6>
+            <div class="social-links">
+              <a href="#" class="social-link"
+                ><i class="bi bi-instagram"></i
+              ></a>
+              <a href="#" class="social-link"><i class="bi bi-twitter"></i></a>
+              <a href="#" class="social-link"><i class="bi bi-facebook"></i></a>
+              <a href="#" class="social-link"><i class="bi bi-youtube"></i></a>
+            </div>
+          </div>
+        </div>
+
+        <hr class="footer-divider" />
+
+        <div class="row">
+          <div class="col-md-6">
+            <p class="copyright">&copy; 2025 Kaatar. All rights reserved.</p>
+          </div>
+          <div class="col-md-6">
+            <div class="footer-legal">
+              <a href="#">Privacy Policy</a>
+              <a href="#">Terms of Service</a>
+              <a href="#">Cookies</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="./js/home.js"></script>
+  </body>
+</html>

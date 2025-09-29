@@ -1,0 +1,62 @@
+    body {
+      background-color: #121212;
+      color: #fff;
+    }
+
+    .playlist-details-section {
+      padding: 50px 0;
+    }
+
+    #songsContainer .list-group-item {
+      background-color: #181818;
+      border: none;
+      margin-bottom: 5px;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.3s;
+    }
+
+    #songsContainer .list-group-item:hover {
+      background-color: #282828;
+    }
+
+    #songsContainer .song-info strong {
+      display: block;
+      font-size: 1rem;
+      color: #fff;
+    }
+
+    #songsContainer .song-info small {
+      color: #b3b3b3;
+    }
+
+    .play-btn {
+      background-color: #1db954;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .play-btn:hover {
+      transform: scale(1.1);
+    }
+
+    #emptyState i {
+      color: #b3b3b3;
+    }
+
+    #playlistTitle {
+      color: #fff;
+    }
+
+    
