@@ -1,5 +1,5 @@
 // ../js/admin.js
-const API_BASE = "http://localhost:8080/api/v1/admin";
+const API_BASE = "https://kaatar.onrender.com/api/v1/admin";
 
 // Fetch admin profile if logged in
 async function fetchAdminProfile() {

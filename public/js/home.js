@@ -1,5 +1,5 @@
 // Base API URL
-const API_BASE = "http://localhost:8080/api/v1"; // change this if deployed
+const API_BASE = "https://kaatar.onrender.com/api/v1"; // change this if deployed
 
 function showToast(message, type = "info") {
   const colors = {

@@ -86,7 +86,7 @@
       const password = document.getElementById('password').value.trim();
 
       try {
-        const res = await fetch('http://localhost:8080/api/v1/admin/login', {
+        const res = await fetch('https://kaatar.onrender.com/api/v1/admin/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

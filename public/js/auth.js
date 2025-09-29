@@ -1,4 +1,4 @@
-const API_BASE = "/api/v1/user"; // relative path since same server
+const API_BASE = "https://kaatar.onrender.com/api/v1/user"; // relative path since same server
 
 // Login API call
 export async function login(email, password) {
