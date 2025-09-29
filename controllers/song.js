@@ -1,6 +1,6 @@
 import cloudinary from "../config/cloudinary.js";
 import sequelize from "../db.js";
-import { Song, User, LikedSong } from "../models/associations.js";
+import { Song, User, LikedSong } from "../models/Associations.js";
 
 // Add a new song
 export const addSong = async (req, res) => {

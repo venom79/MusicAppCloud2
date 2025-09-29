@@ -10,7 +10,7 @@ const sequelize = new Sequelize(
   {
     host: process.env.DB_HOST,
     dialect: "mysql",
-    port: 3306, // explicitly set MySQL port
+    port: 12384, // explicitly set MySQL port
     logging: false, // optional: disables SQL logs
   }
 );

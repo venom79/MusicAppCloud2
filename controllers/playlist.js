@@ -1,4 +1,4 @@
-import { Playlist, Song, PlaylistSong } from "../models/associations.js";
+import { Playlist, Song, PlaylistSong } from "../models/Associations.js";
 
 // Create a new playlist
 export const createPlaylist = async (req, res) => {
