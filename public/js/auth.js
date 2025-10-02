@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8080/api/v1/user";
+const API_BASE = "/api/v1/user";
 
 // Login API call
 export async function login(email, password) {

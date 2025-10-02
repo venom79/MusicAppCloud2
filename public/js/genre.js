@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8080/api/v1/songs";
+const API_BASE = "/api/v1/songs";
 
 const songsContainer = document.getElementById("songsContainer");
 const resultsTitle = document.getElementById("resultsTitle");
@@ -14,7 +14,7 @@ let allSongs = [];
 // --- Check login by fetching user profile ---
 async function checkLogin() {
   try {
-    const res = await fetch("http://localhost:8080/api/v1/user/profile", { credentials: "include" });
+    const res = await fetch("/api/v1/user/profile", { credentials: "include" });
     isLoggedIn = res.ok;
   } catch {
     isLoggedIn = false;
@@ -194,7 +194,7 @@ async function loadUserPlaylists(songId, dropdown) {
   if (!isLoggedIn) return;
 
   try {
-    const res = await fetch("http://localhost:8080/api/v1/playlist/user", { credentials: "include" });
+    const res = await fetch("/api/v1/playlist/user", { credentials: "include" });
     const data = await res.json();
     const playlists = data.data || [];
 
@@ -222,7 +222,7 @@ async function loadUserPlaylists(songId, dropdown) {
 
 async function addSongToPlaylist(songId, playlistId) {
   try {
-    const res = await fetch(`http://localhost:8080/api/v1/playlist/${playlistId}/songs/${songId}`, {
+    const res = await fetch(`/api/v1/playlist/${playlistId}/songs/${songId}`, {
       method: "POST",
       credentials: "include"
     });

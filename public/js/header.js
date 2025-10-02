@@ -1,5 +1,5 @@
 // Base API URL
-const API_BASE = "http://localhost:8080/api/v1"; // adjust if deployed
+const API_BASE = "/api/v1"; // adjust if deployed
 
 // Load header HTML and insert into page
 async function loadHeaderHTML() {

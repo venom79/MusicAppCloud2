@@ -1,5 +1,5 @@
 // admin.js
-const API_BASE = "http://localhost:8080/api/v1/admin";
+const API_BASE = "/api/v1/admin";
 
 async function fetchAdminProfile() {
   try {
