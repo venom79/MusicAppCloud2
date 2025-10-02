@@ -1,68 +1,55 @@
-import { DataTypes } from "sequelize";
-import sequelize from "../db.js";
+import mongoose from "mongoose";
 
-const Song = sequelize.define("Song", {
-  id: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true,
-  },
-
+const songSchema = new mongoose.Schema({
   title: {
-    type: DataTypes.STRING,
-    allowNull: false,
+    type: String,
+    required: true,
   },
-
   artist: {
-    type: DataTypes.JSON, 
-    allowNull: false,
+    type: mongoose.Schema.Types.Mixed, // for JSON data
+    required: true,
   },
-
   album: {
-    type: DataTypes.STRING,
-    allowNull: true,
+    type: String,
+    required: false,
   },
-
   genre: {
-    type: DataTypes.STRING,
-    allowNull: true,
+    type: String,
+    required: false,
   },
-
   releaseDate: {
-    type: DataTypes.DATEONLY,
-    allowNull: true,
+    type: Date,
+    required: false,
   },
-
   duration: {
-    type: DataTypes.STRING, // example: "3:45" OR keep as INTEGER (seconds)
-    allowNull: true,
+    type: String, // "3:45" format
+    required: false,
   },
-
   audioUrl: {
-    type: DataTypes.STRING,
-    allowNull: false, // Cloudinary URL for the song file
+    type: String,
+    required: true, // Cloudinary URL for the song file
   },
-
   audioPublicId: {
-    type: DataTypes.STRING,
-    allowNull: false, // Cloudinary public_id for deletion
+    type: String,
+    required: true, // Cloudinary public_id for deletion
   },
-
   coverImageUrl: {
-    type: DataTypes.STRING,
-    allowNull: true, // Cloudinary URL for artwork/thumbnail
+    type: String,
+    required: false, // Cloudinary URL for artwork/thumbnail
   },
-
   coverPublicId: {
-    type: DataTypes.STRING,
-    allowNull: true, // Cloudinary public_id for deletion
+    type: String,
+    required: false, // Cloudinary public_id for deletion
   },
-  
   likesCount: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    defaultValue: 0, // stores total likes
+    type: Number,
+    required: true,
+    default: 0, // stores total likes
   },
+}, {
+  timestamps: true,
 });
+
+const Song = mongoose.model("Song", songSchema);
 
 export default Song;

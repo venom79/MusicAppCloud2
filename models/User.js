@@ -1,25 +1,23 @@
-import { DataTypes } from "sequelize";
-import sequelize from "../db.js";
+import mongoose from "mongoose";
 
-const User = sequelize.define("User", {
-  id: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true,
-  },
+const userSchema = new mongoose.Schema({
   username: {
-    type: DataTypes.STRING,
-    allowNull: false,
+    type: String,
+    required: true,
   },
   email: {
-    type: DataTypes.STRING,
-    allowNull: false,
+    type: String,
+    required: true,
     unique: true,
   },
   password: {
-    type: DataTypes.STRING,
-    allowNull: false,
+    type: String,
+    required: true,
   },
+}, {
+  timestamps: true,
 });
+
+const User = mongoose.model("User", userSchema);
 
 export default User;

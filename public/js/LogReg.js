@@ -1,4 +1,4 @@
-import { login, register } from "./auth.js";
+import { login, register } from "./auth.js"; // corrected import
 
 const isLoginPage = window.location.pathname.includes("login.html");
 
@@ -12,7 +12,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
     passwordInput.setAttribute("type", type);
     togglePassword.innerHTML =
-      type === "password" ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash"></i>';
+      type === "password"
+        ? '<i class="bi bi-eye"></i>'
+        : '<i class="bi bi-eye-slash"></i>';
   });
 
   // Handle form submit
@@ -22,28 +24,40 @@ document.addEventListener("DOMContentLoaded", () => {
     const email = document.getElementById("email")?.value.trim();
     const password = passwordInput.value.trim();
 
+    clearAlerts();
+
     try {
       const data = isLoginPage
         ? await login(email, password)
         : await register(name, email, password);
 
-      if (!data || data.message?.includes("error")) {
-        // Save error message for toast
-        localStorage.setItem("toastMessage", data.message || "Something went wrong");
-        localStorage.setItem("toastType", "error");
-        return;
-      }
-
-      // Save success message for toast
-      localStorage.setItem("toastMessage", data.message);
-      localStorage.setItem("toastType", "success");
-
-      // Redirect immediately
+      // ✅ Success
+      showSuccess(data.message || "Success");
       window.location.href = "index.html";
     } catch (error) {
-      console.error(error);
-      localStorage.setItem("toastMessage", "Something went wrong. Please try again later.");
-      localStorage.setItem("toastType", "error");
+      console.error("Auth error:", error);
+      showError(error.message);
     }
   });
 });
+
+// Utility: show error message in page
+function showError(msg) {
+  const errorBox = document.createElement("div");
+  errorBox.className = "alert alert-danger mt-3";
+  errorBox.innerText = msg;
+  document.querySelector(".auth-form").appendChild(errorBox);
+}
+
+// Utility: show success message in page
+function showSuccess(msg) {
+  const successBox = document.createElement("div");
+  successBox.className = "alert alert-success mt-3";
+  successBox.innerText = msg;
+  document.querySelector(".auth-form").appendChild(successBox);
+}
+
+// Remove previous alerts
+function clearAlerts() {
+  document.querySelectorAll(".auth-form .alert").forEach((el) => el.remove());
+}

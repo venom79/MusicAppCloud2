@@ -1,4 +1,6 @@
-import { Playlist, Song, PlaylistSong } from "../models/Associations.js";
+import Playlist from "../models/Playlist.js";
+import Song from "../models/Song.js";
+import mongoose from "mongoose";
 
 // Create a new playlist
 export const createPlaylist = async (req, res) => {
@@ -12,9 +14,13 @@ export const createPlaylist = async (req, res) => {
 
     const playlist = await Playlist.create({ name, description, isPublic, userId });
 
+    // Add id field
+    const playlistResponse = playlist.toObject();
+    playlistResponse.id = playlist._id.toString();
+
     res.status(201).json({
       message: "success",
-      data: playlist,
+      data: playlistResponse,
     });
   } catch (error) {
     console.error("Error creating playlist:", error);
@@ -26,20 +32,25 @@ export const createPlaylist = async (req, res) => {
 export const deletePlaylist = async (req, res) => {
   try {
     const { playlistId } = req.params;
-    const userId = req.user.id; // from JWT middleware
+    const userId = req.user.id;
 
-    const playlist = await Playlist.findByPk(playlistId);
+    // Validate playlistId
+    if (!playlistId || playlistId === 'undefined' || !mongoose.Types.ObjectId.isValid(playlistId)) {
+      return res.status(400).json({ message: "Invalid playlist ID" });
+    }
+
+    const playlist = await Playlist.findById(playlistId);
 
     if (!playlist) {
       return res.status(404).json({ message: "Playlist not found" });
     }
 
-    //check ownership
-    if (playlist.userId !== userId) {
+    //check ownership - convert ObjectId to string for comparison
+    if (playlist.userId.toString() !== userId) {
       return res.status(403).json({ message: "Forbidden: You cannot delete this playlist" });
     }
 
-    await playlist.destroy();
+    await Playlist.findByIdAndDelete(playlistId);
 
     res.json({
       message: "success",
@@ -51,14 +62,19 @@ export const deletePlaylist = async (req, res) => {
   }
 };
 
-
 // Get all playlists of a user (both public & private)
 export const getUserPlaylists = async (req, res) => {
   try {
     const userId = req.user.id;
-    const playlists = await Playlist.findAll({ where: { userId } });
+    const playlists = await Playlist.find({ userId }).lean();
 
-    res.json({ message: "success", data: playlists });
+    // Add id field to each playlist
+    const playlistsWithId = playlists.map(playlist => ({
+      ...playlist,
+      id: playlist._id.toString()
+    }));
+
+    res.json({ message: "success", data: playlistsWithId });
   } catch (error) {
     console.error("Error fetching user playlists:", error);
     res.status(500).json({ message: "Server error" });
@@ -68,9 +84,15 @@ export const getUserPlaylists = async (req, res) => {
 // Get all public playlists (from all users)
 export const getAllPublicPlaylists = async (req, res) => {
   try {
-    const playlists = await Playlist.findAll({ where: { isPublic: true } });
+    const playlists = await Playlist.find({ isPublic: true }).lean();
 
-    res.json({ message: "success", data: playlists });
+    // Add id field to each playlist
+    const playlistsWithId = playlists.map(playlist => ({
+      ...playlist,
+      id: playlist._id.toString()
+    }));
+
+    res.json({ message: "success", data: playlistsWithId });
   } catch (error) {
     console.error("Error fetching public playlists:", error);
     res.status(500).json({ message: "Server error" });
@@ -83,19 +105,37 @@ export const addSongToPlaylist = async (req, res) => {
     const { playlistId, songId } = req.params;
     const userId = req.user.id;
 
-    const playlist = await Playlist.findByPk(playlistId);
-    const song = await Song.findByPk(songId);
+    // Validate IDs
+    if (!playlistId || playlistId === 'undefined' || !mongoose.Types.ObjectId.isValid(playlistId)) {
+      return res.status(400).json({ message: "Invalid playlist ID" });
+    }
+    if (!songId || songId === 'undefined' || !mongoose.Types.ObjectId.isValid(songId)) {
+      return res.status(400).json({ message: "Invalid song ID" });
+    }
+
+    const playlist = await Playlist.findById(playlistId);
+    const song = await Song.findById(songId);
 
     if (!playlist || !song) {
       return res.status(404).json({ message: "Playlist or song not found" });
     }
 
     // check ownership
-    if (playlist.userId !== userId) {
+    if (playlist.userId.toString() !== userId) {
       return res.status(403).json({ message: "Forbidden: You cannot modify this playlist" });
     }
 
-    await playlist.addSong(song);
+    // Check if song already exists in playlist
+    if (playlist.songs.some(id => id.toString() === songId)) {
+      return res.status(400).json({ message: "Song already in playlist" });
+    }
+
+    // Add song to playlist using $push
+    await Playlist.findByIdAndUpdate(
+      playlistId,
+      { $push: { songs: songId } },
+      { new: true }
+    );
 
     res.json({
       message: "success",
@@ -113,19 +153,32 @@ export const removeSongFromPlaylist = async (req, res) => {
     const { playlistId, songId } = req.params;
     const userId = req.user.id;
 
-    const playlist = await Playlist.findByPk(playlistId);
-    const song = await Song.findByPk(songId);
+    // Validate IDs
+    if (!playlistId || playlistId === 'undefined' || !mongoose.Types.ObjectId.isValid(playlistId)) {
+      return res.status(400).json({ message: "Invalid playlist ID" });
+    }
+    if (!songId || songId === 'undefined' || !mongoose.Types.ObjectId.isValid(songId)) {
+      return res.status(400).json({ message: "Invalid song ID" });
+    }
+
+    const playlist = await Playlist.findById(playlistId);
+    const song = await Song.findById(songId);
 
     if (!playlist || !song) {
       return res.status(404).json({ message: "Playlist or song not found" });
     }
 
     // check ownership
-    if (playlist.userId !== userId) {
+    if (playlist.userId.toString() !== userId) {
       return res.status(403).json({ message: "Forbidden: You cannot modify this playlist" });
     }
 
-    await playlist.removeSong(song);
+    // Remove song from playlist using $pull
+    await Playlist.findByIdAndUpdate(
+      playlistId,
+      { $pull: { songs: songId } },
+      { new: true }
+    );
 
     res.json({
       message: "success",
@@ -142,17 +195,26 @@ export const getPlaylistSongs = async (req, res) => {
   try {
     const { playlistId } = req.params;
 
-    const playlist = await Playlist.findByPk(playlistId, {
-      include: [Song],
-    });
+    // Validate playlistId
+    if (!playlistId || playlistId === 'undefined' || !mongoose.Types.ObjectId.isValid(playlistId)) {
+      return res.status(400).json({ message: "Invalid playlist ID" });
+    }
+
+    const playlist = await Playlist.findById(playlistId).populate('songs').lean();
 
     if (!playlist) {
       return res.status(404).json({ message: "Playlist not found" });
     }
 
+    // Add id field to each song
+    const songsWithId = playlist.songs.map(song => ({
+      ...song,
+      id: song._id.toString()
+    }));
+
     res.json({
       message: "success",
-      data: playlist.Songs,
+      data: songsWithId,
     });
   } catch (error) {
     console.error("Error fetching playlist songs:", error);
@@ -164,20 +226,26 @@ export const getPlaylistSongs = async (req, res) => {
 export const getNextSong = async (req, res) => {
   const { playlistId, songId } = req.params;
   try {
-    const playlistSongs = await PlaylistSong.findAll({
-      where: { playlistId },
-      order: [["id", "ASC"]],
-    });
+    // Validate IDs
+    if (!playlistId || playlistId === 'undefined' || !mongoose.Types.ObjectId.isValid(playlistId)) {
+      return res.status(400).json({ message: "Invalid playlist ID" });
+    }
+    if (!songId || songId === 'undefined' || !mongoose.Types.ObjectId.isValid(songId)) {
+      return res.status(400).json({ message: "Invalid song ID" });
+    }
 
-    if (playlistSongs.length === 0)
+    const playlist = await Playlist.findById(playlistId).populate('songs');
+
+    if (!playlist || playlist.songs.length === 0) {
       return res.status(404).json({ message: "No songs in playlist" });
+    }
 
-    let index = playlistSongs.findIndex(s => s.songId == songId);
+    let index = playlist.songs.findIndex(s => s._id.toString() === songId);
     if (index === -1) index = 0; // fallback if song not found
 
-    const nextIndex = (index + 1) % playlistSongs.length; // loop
-    const nextSongId = playlistSongs[nextIndex].songId;
-    const nextSong = await Song.findByPk(nextSongId);
+    const nextIndex = (index + 1) % playlist.songs.length; // loop
+    const nextSong = playlist.songs[nextIndex].toObject();
+    nextSong.id = nextSong._id.toString();
 
     res.status(200).json(nextSong);
   } catch (err) {
@@ -189,21 +257,26 @@ export const getNextSong = async (req, res) => {
 export const getPrevSong = async (req, res) => {
   const { playlistId, songId } = req.params;
   try {
-    const playlistSongs = await PlaylistSong.findAll({
-      where: { playlistId },
-      order: [["id", "ASC"]],
-    });
+    // Validate IDs
+    if (!playlistId || playlistId === 'undefined' || !mongoose.Types.ObjectId.isValid(playlistId)) {
+      return res.status(400).json({ message: "Invalid playlist ID" });
+    }
+    if (!songId || songId === 'undefined' || !mongoose.Types.ObjectId.isValid(songId)) {
+      return res.status(400).json({ message: "Invalid song ID" });
+    }
 
-    if (playlistSongs.length === 0)
+    const playlist = await Playlist.findById(playlistId).populate('songs');
+
+    if (!playlist || playlist.songs.length === 0) {
       return res.status(404).json({ message: "No songs in playlist" });
+    }
 
-    let index = playlistSongs.findIndex(s => s.songId == songId);
+    let index = playlist.songs.findIndex(s => s._id.toString() === songId);
     if (index === -1) index = 0;
 
-    const prevIndex =
-      (index - 1 + playlistSongs.length) % playlistSongs.length; // loop
-    const prevSongId = playlistSongs[prevIndex].songId;
-    const prevSong = await Song.findByPk(prevSongId);
+    const prevIndex = (index - 1 + playlist.songs.length) % playlist.songs.length; // loop
+    const prevSong = playlist.songs[prevIndex].toObject();
+    prevSong.id = prevSong._id.toString();
 
     res.status(200).json(prevSong);
   } catch (err) {

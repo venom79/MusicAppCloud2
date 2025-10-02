@@ -1,10 +1,12 @@
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 
-const JWT_SECRET = process.env.JWT_SECRET || "secret123";
-
+dotenv.config();
+const JWT_SECRET = process.env.JWT_SECRET;
 export const isAuthenticated = (req, res, next) => {
   try {
-    const token = req.cookies.token; 
+    const token = req.cookies.token;
+
 
     if (!token) {
       return res.status(401).json({ message: "Unauthorized" });
@@ -14,7 +16,7 @@ export const isAuthenticated = (req, res, next) => {
     const decoded = jwt.verify(token, JWT_SECRET);
 
     // attach user info to request
-    req.user = decoded; // contains { id, iat, exp }
+    req.user = decoded; // contains { id, email, role, iat, exp }
     next();
   } catch (error) {
     return res.status(401).json({ message: "Not authorized, token failed" });
@@ -22,19 +24,24 @@ export const isAuthenticated = (req, res, next) => {
 };
 
 export const verifyAdmin = (req, res, next) => {
-  if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+  
+  if (!req.user) {
+    return res.status(401).json({ message: "Not authenticated" });
+  }
 
   if (req.user.role !== "admin") {
     return res.status(403).json({ message: "Access denied: Admins only" });
   }
-
   next();
 };
 
 export const optionalAuth = (req, res, next) => {
   try {
     const token = req.cookies.token;
-    if (!token) return next();
+    if (!token) {
+      console.log("⚠️ Optional auth: No token");
+      return next();
+    }
     req.user = jwt.verify(token, JWT_SECRET);
     next();
   } catch (err) {

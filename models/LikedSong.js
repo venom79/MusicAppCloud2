@@ -1,20 +1,23 @@
-import { DataTypes } from "sequelize";
-import sequelize from "../db.js";
+import mongoose from "mongoose";
 
-const LikedSong = sequelize.define("LikedSong", {
-  id: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true,
-  },
+const likedSongSchema = new mongoose.Schema({
   userId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
   },
   songId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Song",
+    required: true,
   },
+}, {
+  timestamps: true,
 });
+
+// Create compound index to prevent duplicate likes
+likedSongSchema.index({ userId: 1, songId: 1 }, { unique: true });
+
+const LikedSong = mongoose.model("LikedSong", likedSongSchema);
 
 export default LikedSong;

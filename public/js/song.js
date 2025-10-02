@@ -1,5 +1,5 @@
 // ./js/song.js
-const API_BASE = "https://kaatar.onrender.com/api/v1";
+const API_BASE = "http://localhost:8080/api/v1";
 
 
 // --- Utilities ---
@@ -274,7 +274,6 @@ async function addSongToPlaylist(playlistId, songIdToAdd) {
     const dropdown = bootstrap.Dropdown.getInstance(addToPlaylistBtn);
     if (dropdown) dropdown.hide();
   } catch (err) {
-    console.error(err);
     showToast("Failed to add to playlist");
   }
 }

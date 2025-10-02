@@ -1,4 +1,4 @@
-const API_BASE = "https://kaatar.onrender.com/api/v1";
+const API_BASE = "http://localhost:8080/api/v1";
 
 const songsContainer = document.getElementById("songsContainer");
 const resultsTitle = document.getElementById("resultsTitle");
@@ -61,6 +61,7 @@ async function loadSongs() {
         const data = await res.json();
         allSongs = data || [];
 
+        console.log(allSongs);
         if (showing === "songs") renderSongs(allSongs);
     } catch (err) {
         console.error("Error fetching songs:", err);

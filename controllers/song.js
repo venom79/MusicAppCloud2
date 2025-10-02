@@ -1,6 +1,8 @@
 import cloudinary from "../config/cloudinary.js";
-import sequelize from "../db.js";
-import { Song, User, LikedSong } from "../models/Associations.js";
+import Song from "../models/Song.js";
+import User from "../models/User.js";
+import LikedSong from "../models/LikedSong.js";
+import mongoose from "mongoose";
 
 // Add a new song
 export const addSong = async (req, res) => {
@@ -61,7 +63,11 @@ export const addSong = async (req, res) => {
       coverPublicId,
     });
 
-    res.status(201).json({ message: "Song uploaded successfully", song });
+    // Convert to plain object and add id field
+    const songResponse = song.toObject();
+    songResponse.id = song._id.toString();
+
+    res.status(201).json({ message: "Song uploaded successfully", song: songResponse });
   } catch (error) {
     console.error("Error uploading song:", error);
     res.status(500).json({ message: "Server error" });
@@ -71,50 +77,40 @@ export const addSong = async (req, res) => {
 // Get all songs
 export const getSongs = async (req, res) => {
   try {
-    const userId = req.user?req.user.id:undefined;
-
-    console.log("Fetching songs for userId:", userId);
-
-
-    const songs = await Song.findAll({
-      attributes: {
-        include: [
-          // dynamic likes count
-          [
-            sequelize.literal(
-              `(SELECT COUNT(*) FROM LikedSongs WHERE LikedSongs.songId = Song.id)`
-            ),
-            "likesCount",
-          ],
-          // whether THIS user liked it
-          [
-            sequelize.literal(
-              userId
-                ? `(EXISTS(SELECT 1 FROM LikedSongs WHERE LikedSongs.songId = Song.id AND LikedSongs.userId = ${userId}))`
-                : "0"
-            ),
-            "likedByUser",
-          ],
-        ],
+    const userId = req.user ? req.user.id : undefined;
+    // Use aggregation pipeline to calculate likesCount and likedByUser
+    const songs = await Song.aggregate([
+      {
+        $lookup: {
+          from: "likedsongs",
+          localField: "_id",
+          foreignField: "songId",
+          as: "likes"
+        }
       },
-    });
+      {
+        $addFields: {
+          id: { $toString: "$_id" }, // Add id field as string
+          likesCount: { $size: "$likes" },
+          likedByUser: userId ? {
+            $in: [new mongoose.Types.ObjectId(userId), "$likes.userId"]
+          } : false
+        }
+      },
+      {
+        $project: {
+          likes: 0 // remove the likes array from output
+        }
+      }
+    ]);
 
     // normalize fields
-    const formatted = songs.map((song) => {
-      const plain = song.toJSON();
-
-      return {
-        ...plain,
-        likedByUser: Boolean(Number(plain.likedByUser)), // force true/false
-        artist: (() => {
-          try {
-            return JSON.parse(plain.artist);
-          } catch {
-            return plain.artist;
-          }
-        })(),
-      };
-    });
+    const formatted = songs.map((song) => ({
+      ...song,
+      likedByUser: Boolean(song.likedByUser),
+      artist: Array.isArray(song.artist) ? song.artist : 
+              (typeof song.artist === 'string' ? JSON.parse(song.artist) : song.artist)
+    }));
 
     res.status(200).json(formatted);
   } catch (error) {
@@ -129,29 +125,39 @@ export const getSongById = async (req, res) => {
     const { id } = req.params;
     const userId = req.user?.id;
 
-    const song = await Song.findByPk(id, {
-      attributes: {
-        include: [
-          [
-            sequelize.literal(
-              `(SELECT COUNT(*) FROM LikedSongs WHERE LikedSongs.songId = Song.id)`
-            ),
-            "likesCount",
-          ],
-          [
-            sequelize.literal(
-              userId
-                ? `(CASE WHEN EXISTS (SELECT 1 FROM LikedSongs WHERE LikedSongs.songId = Song.id AND LikedSongs.userId = ${userId}) THEN 1 ELSE 0 END)`
-                : "0"
-            ),
-            "likedByUser",
-          ],
-        ],
+    const songAggregation = await Song.aggregate([
+      {
+        $match: { _id: new mongoose.Types.ObjectId(id) }
       },
-    });
+      {
+        $lookup: {
+          from: "likedsongs",
+          localField: "_id",
+          foreignField: "songId",
+          as: "likes"
+        }
+      },
+      {
+        $addFields: {
+          id: { $toString: "$_id" }, // Add id field as string
+          likesCount: { $size: "$likes" },
+          likedByUser: userId ? {
+            $in: [new mongoose.Types.ObjectId(userId), "$likes.userId"]
+          } : false
+        }
+      },
+      {
+        $project: {
+          likes: 0
+        }
+      }
+    ]);
 
-    if (!song) return res.status(404).json({ message: "Song not found" });
+    if (!songAggregation || songAggregation.length === 0) {
+      return res.status(404).json({ message: "Song not found" });
+    }
 
+    const song = songAggregation[0];
     res.status(200).json(song);
   } catch (error) {
     console.error("Error fetching song:", error);
@@ -159,12 +165,11 @@ export const getSongById = async (req, res) => {
   }
 };
 
-
 // Delete song
 export const deleteSong = async (req, res) => {
   try {
     const { id } = req.params;
-    const song = await Song.findByPk(id);
+    const song = await Song.findById(id);
 
     if (!song) return res.status(404).json({ message: "Song not found" });
 
@@ -175,7 +180,7 @@ export const deleteSong = async (req, res) => {
       await cloudinary.uploader.destroy(song.coverPublicId, { resource_type: "image" });
     }
 
-    await song.destroy();
+    await Song.findByIdAndDelete(id);
     res.status(200).json({ message: "Song deleted successfully" });
   } catch (error) {
     console.error("Error deleting song:", error);
@@ -189,19 +194,28 @@ export const likeSong = async (req, res) => {
     const userId = req.user.id;
     const songId = req.params.id;
 
-    const song = await Song.findByPk(songId);
-    const user = await User.findByPk(userId);
+    const song = await Song.findById(songId);
 
     if (!song) return res.status(404).json({ message: "Song not found" });
 
-    const alreadyLiked = await LikedSong.findOne({ where: { userId, songId } });
+    const alreadyLiked = await LikedSong.findOne({ userId, songId });
     if (alreadyLiked) return res.status(400).json({ message: "Song already liked" });
 
-    await user.addLikedSong(song);
+    // Create liked song entry
+    await LikedSong.create({ userId, songId });
+    
+    // Increment likes count
     song.likesCount += 1;
     await song.save();
 
-    res.json({ message: "Song liked successfully", data: { songId, likesCount: song.likesCount } });
+    res.json({ 
+      message: "Song liked successfully", 
+      data: { 
+        songId: song._id.toString(), 
+        id: song._id.toString(), // Add id field
+        likesCount: song.likesCount 
+      } 
+    });
   } catch (error) {
     console.error("Error liking song:", error);
     res.status(500).json({ message: "Server error" });
@@ -214,19 +228,28 @@ export const unlikeSong = async (req, res) => {
     const userId = req.user.id;
     const songId = req.params.id;
 
-    const song = await Song.findByPk(songId);
-    const user = await User.findByPk(userId);
+    const song = await Song.findById(songId);
 
     if (!song) return res.status(404).json({ message: "Song not found" });
 
-    const likedEntry = await LikedSong.findOne({ where: { userId, songId } });
+    const likedEntry = await LikedSong.findOne({ userId, songId });
     if (!likedEntry) return res.status(400).json({ message: "Song not liked yet" });
 
-    await user.removeLikedSong(song);
+    // Delete liked song entry
+    await LikedSong.deleteOne({ userId, songId });
+    
+    // Decrement likes count
     if (song.likesCount > 0) song.likesCount -= 1;
     await song.save();
 
-    res.json({ message: "Song unliked successfully", data: { songId, likesCount: song.likesCount } });
+    res.json({ 
+      message: "Song unliked successfully", 
+      data: { 
+        songId: song._id.toString(), 
+        id: song._id.toString(), // Add id field
+        likesCount: song.likesCount 
+      } 
+    });
   } catch (error) {
     console.error("Error unliking song:", error);
     res.status(500).json({ message: "Server error" });
@@ -237,17 +260,22 @@ export const unlikeSong = async (req, res) => {
 export const getUserLikedSongs = async (req, res) => {
   try {
     const userId = req.user.id;
-    const user = await User.findByPk(userId, {
-      include: [{ model: Song, as: "LikedSongs" }],
+    
+    const likedSongs = await LikedSong.find({ userId }).populate('songId');
+
+    // Extract songs and add id field
+    const songs = likedSongs.map(liked => {
+      const song = liked.songId.toObject();
+      song.id = song._id.toString();
+      return song;
     });
 
-    res.json({ message: "success", data: user.LikedSongs });
+    res.json({ message: "success", data: songs });
   } catch (error) {
     console.error("Error fetching liked songs:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
-
 
 // Get songs by genre
 export const getSongsByGenre = async (req, res) => {
@@ -261,13 +289,19 @@ export const getSongsByGenre = async (req, res) => {
     }
 
     // Fetch songs of that genre
-    const songs = await Song.findAll({ where: { genre } });
+    const songs = await Song.find({ genre }).lean(); // Use .lean() for better performance
 
     if (!songs || songs.length === 0) {
       return res.status(404).json({ message: `No songs found for genre: ${genre}` });
     }
 
-    res.status(200).json(songs);
+    // Add id field to each song
+    const songsWithId = songs.map(song => ({
+      ...song,
+      id: song._id.toString()
+    }));
+
+    res.status(200).json(songsWithId);
   } catch (error) {
     console.error("Error fetching songs by genre:", error);
     res.status(500).json({ message: "Server error", error: error.message });

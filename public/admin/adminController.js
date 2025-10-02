@@ -1,4 +1,4 @@
-const API_BASE = "https://kaatar.onrender.com/api/v1/songs"; // update if different
+const API_BASE_SONG = "http://localhost:8080/api/v1/songs"; // update if different
 
 // Variable to store the song ID to delete
 let songToDelete = null;
@@ -33,7 +33,7 @@ async function loadSongs() {
     '<div class="text-center p-4"><i class="bi bi-arrow-repeat fa-spin me-2"></i>Loading songs...</div>';
 
   try {
-    const res = await fetch(API_BASE, { credentials: "include" });
+    const res = await fetch(API_BASE_SONG, { credentials: "include" });
     if (!res.ok) throw new Error("Failed to fetch songs");
     const songs = await res.json();
 
@@ -130,7 +130,7 @@ function showDeleteModal(event) {
 // Function to delete a song
 async function deleteSong(id) {
   try {
-    const res = await fetch(`${API_BASE}/${id}`, {
+    const res = await fetch(`${API_BASE_SONG}/${id}`, {
       method: "DELETE",
       credentials: "include",
     });
@@ -192,7 +192,7 @@ document.getElementById("songForm").addEventListener("submit", async (e) => {
   }
 
   try {
-    await uploadWithProgress(API_BASE, formData, {
+    await uploadWithProgress(API_BASE_SONG, formData, {
       withCredentials: true,
       onProgress: (e) => {
         if (!bar || !text) return;

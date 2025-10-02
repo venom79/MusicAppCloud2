@@ -1,7 +1,7 @@
 import express from "express";
 import { addSong, getSongs, getSongById, deleteSong, getUserLikedSongs, unlikeSong, likeSong, getSongsByGenre } from "../controllers/song.js";
 import { upload } from "../middlewares/upload.js";
-import { isAuthenticated, optionalAuth } from "../middlewares/auth.js";
+import { isAuthenticated, optionalAuth, verifyAdmin } from "../middlewares/auth.js";
 
 const router = express.Router();
 
@@ -9,7 +9,9 @@ const router = express.Router();
 
 // Add a song (upload audio + optional cover image)
 router.post(
-  "/", isAuthenticated,
+  "/",
+  isAuthenticated,
+  verifyAdmin,
   upload.fields([
     { name: "audio", maxCount: 1 },
     { name: "cover", maxCount: 1 },
@@ -19,7 +21,7 @@ router.post(
 
 router.get("/", optionalAuth, getSongs);//get all songs
 router.get("/:id", optionalAuth, getSongById);  //get a selected song
-router.delete("/:id", deleteSong);//delete a selected song
+router.delete("/:id", isAuthenticated, verifyAdmin, deleteSong);//delete a selected song
 
 // Like a song
 router.post("/:id/like", isAuthenticated, likeSong);

@@ -1,4 +1,4 @@
-const API_BASE = "https://kaatar.onrender.com/api/v1";
+const API_BASE = "http://localhost:8080/api/v1";
 
 const usernameEl = document.getElementById("username");
 const songCountEl = document.getElementById("songCount");

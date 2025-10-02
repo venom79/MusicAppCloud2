@@ -1,27 +1,31 @@
-import { DataTypes } from "sequelize";
-import sequelize from "../db.js";
+import mongoose from "mongoose";
 
-const Playlist = sequelize.define("Playlist", {
-  id: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true,
-  },
-
+const playlistSchema = new mongoose.Schema({
   name: {
-    type: DataTypes.STRING,
-    allowNull: false,
+    type: String,
+    required: true,
   },
-
   description: {
-    type: DataTypes.STRING,
-    allowNull: true,
+    type: String,
+    required: false,
   },
-
   isPublic: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false, // false = private, true = public
+    type: Boolean,
+    default: false, // false = private, true = public
   },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  songs: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Song",
+  }],
+}, {
+  timestamps: true,
 });
+
+const Playlist = mongoose.model("Playlist", playlistSchema);
 
 export default Playlist;
