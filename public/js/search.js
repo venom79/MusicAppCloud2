@@ -61,7 +61,6 @@ async function loadSongs() {
         const data = await res.json();
         allSongs = data || [];
 
-        console.log(allSongs);
         if (showing === "songs") renderSongs(allSongs);
     } catch (err) {
         console.error("Error fetching songs:", err);

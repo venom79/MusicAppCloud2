@@ -283,3 +283,36 @@ export const getPrevSong = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+
+export const getPlaylistById = async (req, res) => {
+  try {
+    const { playlistId } = req.params;
+
+    // Validate playlistId
+    if (!playlistId || playlistId === 'undefined' || !mongoose.Types.ObjectId.isValid(playlistId)) {
+      return res.status(400).json({ message: "Invalid playlist ID" });
+    }
+
+    const playlist = await Playlist.findById(playlistId).lean();
+
+    if (!playlist) {
+      return res.status(404).json({ message: "Playlist not found" });
+    }
+
+    // Add string version of _id for convenience
+    const playlistResponse = {
+      ...playlist,
+      id: playlist._id.toString(),
+      userId: playlist.userId.toString(), // Owner ID as string
+    };
+
+    res.status(200).json({
+      message: "success",
+      data: playlistResponse,
+    });
+  } catch (error) {
+    console.error("Error fetching playlist:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};

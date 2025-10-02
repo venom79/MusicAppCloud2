@@ -9,6 +9,7 @@ import {
   getAllPublicPlaylists,
   getNextSong,
   getPrevSong,
+  getPlaylistById,
 } from "../controllers/playlist.js";
 
 import { isAuthenticated } from "../middlewares/auth.js";
@@ -38,9 +39,12 @@ router.delete("/:playlistId/songs/:songId", isAuthenticated, removeSongFromPlayl
 router.get("/:playlistId/songs", getPlaylistSongs);
 
 // Get next song in a playlist
-router.get("/:playlistId/songs/:songId/next", isAuthenticated, getNextSong);
+router.get("/:playlistId/songs/:songId/next", getNextSong);
 
 // Get previous song in a playlist
-router.get("/:playlistId/songs/:songId/prev", isAuthenticated, getPrevSong);
+router.get("/:playlistId/songs/:songId/prev", getPrevSong);
+
+// Get a single playlist
+router.get("/:playlistId", getPlaylistById);
 
 export default router;
